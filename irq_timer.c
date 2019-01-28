@@ -26,7 +26,7 @@
 #define VIC_INTENABLE	0x4
 
 
-
+extern void enable_irq();
 
 void uart_puts(char *s){
 	while(*s){
@@ -58,6 +58,13 @@ void boot_main(void){
 		TIMER_EN | TIMER_PERIODIC | TIMER_32BIT | TIMER_INTEN;
 
 	enable_irq();
+	__asm__ volatile(
+		"MRS	r0,cpsr\n"
+		"BIC	r0,r0,#0x80\n"
+		"MSR	cpsr,r0\n"
+	);
 
 	for(;;);
 }
+
+void c_swi_handler(){};

@@ -20,7 +20,7 @@ undef_handler_addr:		.word halt
 swi_handler_addr:		.word swi_handler
 prefetch_abort_handler_addr:	.word halt
 data_abort_handler_addr:	.word halt
-irq_handler_addr:		.word halt
+irq_handler_addr:		.word irq_handler
 fiq_handler_addr:		.word halt
 vectors_end:
 
@@ -44,7 +44,7 @@ keep_loading:
 	BNE	keep_loading
 
 	
-/*	MRS	r0,cpsr
+	MRS	r0,cpsr
 
 	BIC	r1, r0, #0x1F
 	ORR	r1, r1, #0x12
@@ -53,12 +53,17 @@ keep_loading:
 	LDR	sp, =irq_stack_top
 	
 	MSR	cpsr, r0
-*/
+
 
 	BIC	r1, r0, #0x1F
 	ORR	r1, r1, #0x10
 	MSR	cpsr, r1
 	LDR	sp, =user_stack_top
+
+	MRS	r0,cpsr
+	BIC	r0,r0,#0x1F
+	ORR	r0,r0,#0x13
+	MSR	cpsr, r0
 
 	BL	boot_main
 	B	.
@@ -84,7 +89,6 @@ call_swi:
 	SWI	0x120001
 	POP	{r0-r12,lr}
 	BX	lr
-/*
 	.global irq_handler
 irq_handler:
 	PUSH	{r0-r12,lr}
@@ -98,6 +102,5 @@ enable_irq:
 	BIC	r0,r0,#0x80
 	MSR	cpsr_c,r0
 	BX	lr
-*/
 	.end
 
